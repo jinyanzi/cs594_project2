@@ -5,12 +5,12 @@
 %\documentstyle[nips14submit_09,times,art10]{article} % For LaTeX 2.09
 
 
-\title{CS 594 Project 2 Proposal: Depth and Width Study of Neural Network for Image Recognition}
+\title{CS 594 Project 2 Proposal: Representation and Regularization Study of Deep and Wide Neural Network for Image Recognition}
 
 
 \author{
 Yanzi Jin \\
-\texttt{yjin25z@uic.edu.edu} \\
+\texttt{yjin25z@uic.edu} \\
 \And
 Yaru Shi \\
 \texttt{yshi31@uic.edu} \\
@@ -33,11 +33,11 @@ Yaru Shi \\
 
 \maketitle
 
-We are going to reproduce part of the experiment of Deep Residual Network (resNet) \cite{he2015deep} and wide Residual Network (WRN) \cite{zagoruyko2016wide} for image recognition. Compared to other framework like GoogLeNet \cite{szegedy2015going}, resNet has much simpler architecture, and achieves the state-of-the-art performance. It won the first place of ImageNet detection, ImageNet localization, COCO detection, and COCO segmentation by increasing the network depth to 152 layers on ImageNet. Furthermore, according to the author's recent talk, they are able achieve 1000 layers on CIFAR-10 dataset. On the other hand, the author of WRN claims that a simple 16-layer-deep wide residual network outperforms in accuracy and efficiency all previous deep residual networks, including thousand-layer-deep networks. Both methods have straightforward architecture, we believe it a good framework to explore the details in deep neural network. 
+We are going to reproduce part of the experiment of Deep Residual Network (resNet) \cite{he2015deep} and wide Residual Network (WRN) \cite{zagoruyko2016wide} for image recognition, as well as some follow-up experiments in terms of representation and regularization when training deep neural network. Compared to other framework like GoogLeNet \cite{szegedy2015going}, resNet has much simpler architecture, and achieves the state-of-the-art performance. It won the first place of ImageNet detection, ImageNet localization, COCO detection, and COCO segmentation by increasing the network depth to 152 layers on ImageNet. Furthermore, according to the author's recent talk, they are able achieve 1000 layers on CIFAR-10 dataset. On the other hand, the author of WRN claims that a simple 16-layer-deep wide residual network outperforms in accuracy and efficiency all previous deep residual networks, including thousand-layer-deep networks. Both methods have straightforward architecture, we believe it a good framework to explore the details in deep neural network. 
 
-Combining the above two papers, we will study the effects of the filter size, batch normalization order, and dropout, with SGD solver for all the experiment settings. We are going to compare ``plain'' neural network, deep residual network and wide residual network. The expected results will be the consistent with the papers that deep residual network is better than ``plain'' network, while wide residual network achieves similar accuracy with much deeper residual network. The results will be displayed as training and testing error plot along with time. 
+In the first part of our project, we are going to compare ``plain'' neural network, deep residual network and wide residual network using the parameters provided in above papers. The expected results will be the consistent with the papers that deep residual network is better than ``plain'' network, while wide residual network achieves similar accuracy with much deeper residual network. The results will be displayed as training and testing error plot along with time. In the second part, we are going to play with the parameters of deep and wide residual network. Borrowing the two terms used in \cite{zagoruyko2016wide}, there are deepening factor $l$ and widening factor $k$, where deepening factor $l$ is the number of convolutions in a block and $k$ multiplies the the number of features in convolution layers. Since the $l$ is set to 2 in both papers, we are going to increase the number of convolution layers between shortcuts. In the last part, we are going to study the effect of dropout. Inspired by \cite{he2016identity} and \cite{DBLP:journals/corr/HuangSLSW16}, we are going to integrate the stochastic depth dropout in the resNet and propose a stochastic width dropout scheme. We expect that the dropout will help with generation, however, may not be trivial on small dataset.
 
-Due to the large size of ImageNet dataset, we will mainly work on CIFAR-10 dataset \cite{krizhevsky2009learning}, which contains 60000 labeled for 10 classes images $32\times32$ in size, training set has 50000 and test set 10000. The experiments will run on a NVIDIA TitanX GPU and the maximal network depth would roughly be 20. 
+Given the well implemented code on Github, we will study the code and implement the second and third part. Due to the large size of ImageNet dataset, we will mainly work on CIFAR-10 dataset \cite{krizhevsky2009learning}, which contains 60000 labeled for 10 classes images $32\times32$ in size, training set has 50000 and test set 10000. The experiments will run on a NVIDIA TitanX GPU and the maximal network depth would roughly be 20. 
 
 \bibliographystyle{plain}
 \bibliography{proposal} 
