@@ -33,6 +33,7 @@ local opt = {
   shortcutType = 'A',
   nesterov = false,
   dropout = 0,
+  stoDrop = 0,
   hflip = true,
   randomcrop = 4,
   imageSize = 32,

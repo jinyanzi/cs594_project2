@@ -93,14 +93,14 @@ def plotLogs(log_names, suffix = ''):
     #plt.show()
     plt.savefig('trainTime_' + suffix + '.pdf') 
 
-    n_parameters = [frame['n_parameters'][0] for i,frame in enumerate(frames)]
+    n_parameters = [frame['n_parameters'][0]/1000000.0 for i,frame in enumerate(frames)]
     x = np.arange(len(n_parameters))
     p = plt.figure()
     plt.bar(x+0.25, n_parameters, 0.5)
     plt.xticks(x+0.5, legends)
 
     plt.title('#parameter')
-    plt.ylabel('#parameter')
+    plt.ylabel('#parameter (M)')
 
     #plt.show()
     plt.savefig('nparameters_' + suffix + '.pdf') 
@@ -113,7 +113,16 @@ plotLogs([
     'wide-resnet_d40w4',
     'wide-resnet_d40w6',
     'wide-resnet_d40w8'
-    ], 'width')
+    ], 'width40')
+
+plotLogs([
+    'wide-resnet_d16w1',
+    'wide-resnet_d16w2',
+    'wide-resnet_d16w4',
+    'wide-resnet_d16w8',
+    'wide-resnet_d16w10'
+    ], 'width16')
+
 
 plotLogs([
     'resnet-pre-act_d11',
@@ -121,4 +130,10 @@ plotLogs([
     'resnet-pre-act_d164',
     'resnet-pre-act_d227'
     ], 'depth')
+
+plotLogs([
+    'wide-resnet_d16w8',
+    'resnet-pre-act_d227'
+    ], 'dw-compare')
+
 
