@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # wide residual network with different widening factor
-wrn_depth=(16 22 28)
+wrn_depth=(22 28)
 width=(1 2 4 8 10 12)
 for d in "${wrn_depth[@]}";do
 	for w in "${width[@]}";do
-		if [[ $d == 16 ]];then
-			if [[ $w == 1 || $w == 2 || $w == 4 || $w == 8 ]];then
+		if [[ $d == 22 ]];then
+			if [[ $w == 1 || $w == 2 ]];then
 				continue
 			fi
 		fi
