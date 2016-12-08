@@ -18,7 +18,8 @@
 
 local nn = require 'nn'
 local utils = paths.dofile'utils.lua'
--- local wDrop = path.dofile'widthDropout.lua'
+local wDrop = require 'widthDropout'
+-- local wDrop = paths.dofile'widthDropout.lua'
 
 local Convolution = nn.SpatialConvolution
 local Avg = nn.SpatialAveragePooling
@@ -35,9 +36,10 @@ local function createModel(opt)
       return nn.Dropout(opt and opt.dropout or 0,nil,true)
    end
 
-   -- local function WidthDrop()
-   --    return wDrop.WidthDropouti(opt and opt.stoDrop or 0, nil, true)
-   -- end
+   local function WidthDrop()
+	print(type(wDrop), type(utils), type(nn))
+      return wDrop.WidthDropout(opt and opt.stoDrop or 0, nil, true)
+   end
 
    local depth = opt.depth
 
@@ -65,9 +67,9 @@ local function createModel(opt)
             end
 			
 			-- stochastic width dropout
-			-- if opt.stoDrop > 0 then
-			-- 	convs:add(widthDrop())
-			-- end
+			if opt.stoDrop > 0 then
+				convs:add(WidthDrop())
+			end
             convs:add(Convolution(nBottleneckPlane,nBottleneckPlane,table.unpack(v)))
          end
       end
