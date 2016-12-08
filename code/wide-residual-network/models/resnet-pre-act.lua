@@ -44,7 +44,7 @@ local function createModel(opt)
          convs:add(SBatchNorm(nInputPlane))
          convs:add(ReLU(true))
          convs:add(Convolution(nInputPlane,nBottleneckPlane,1,1,stride,stride,0,0))
-        
+       
          -- conv3x3
          convs:add(SBatchNorm(nBottleneckPlane))
          convs:add(ReLU(true))

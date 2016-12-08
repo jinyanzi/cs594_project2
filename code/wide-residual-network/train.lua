@@ -43,6 +43,7 @@ local opt = {
   generate_graph = false,
   multiply_input_factor = 1,
   widen_factor = 1,
+  deepen_factor = 2,
   nGPU = 1,
   data_type = 'torch.CudaTensor',
 }
