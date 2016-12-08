@@ -55,6 +55,6 @@ data='dataset=./datasets/cifar100_whitened.t7'
 nGPU=(1 2 3 4)
 for n in "${nGPU[@]}";do
 	echo $n
-	model=wide-resnet widen_factor=10 depth=50 dataset=./datasets/cifar100_whitened.t7 nGPU=$n./scripts/train_cifar.sh
+	model=wide-resnet widen_factor=10 depth=52 dataset=./datasets/cifar100_whitened.t7 nGPU=$n./scripts/train_cifar.sh
 	model=resnet-pre-act depth=1001 dataset=./datasets/cifar100_whitened.t7 nGPU=$n ./scripts/train_cifar.sh
 done
