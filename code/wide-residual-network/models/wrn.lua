@@ -36,8 +36,7 @@ local function createModel(opt)
    end
 
    local function WidthDrop()
-	print(wDrop)
-      return wDrop.WidthDropout(opt and opt.stoDrop or 0, nil, true)
+      return nn.WidthDropout(opt and opt.stoDrop or 0, nil, true)
    end
 
    local depth = opt.depth
@@ -64,7 +63,6 @@ local function createModel(opt)
             if opt.dropout > 0 then
                convs:add(Dropout())
             end
-			
 			-- stochastic width dropout
 			if opt.stoDrop > 0 then
 				convs:add(WidthDrop())

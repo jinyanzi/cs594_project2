@@ -1,4 +1,4 @@
-local WidthDropout, parent = torch.class('nn.WidthDropout', 'nn.Module')
+local WidthDropout, Parent = torch.class('nn.WidthDropout', 'nn.Module')
 
 function WidthDropout:__init(p,v1,inplace,stochasticInference)
    Parent.__init(self)
@@ -12,7 +12,6 @@ function WidthDropout:__init(p,v1,inplace,stochasticInference)
       error('<WidthDropout> illegal percentage, must be 0 <= p < 1')
    end
    self.noise = torch.Tensor()
-   print(self.p)
 end
 
 function WidthDropout:updateOutput(input)
@@ -24,9 +23,13 @@ function WidthDropout:updateOutput(input)
    if self.p > 0 then
       if self.train or self.stochastic_inference then
          self.noise:resizeAs(input)
-         for i, slice in ipairs(self.noise:split(1,self.noise:size(-1))) do
-             slice:fill(bernoulli(1-self.p))
-         end
+		 print(input:size())
+		 -- input is 4D tensor, second dimension is the feature map 
+		 local mask = torch.ByteTensor(1, input:size(2)):bernoulli(1-self.p)
+		 local indices = torch.linspace(1,mask:size(2),mask:size(2)):long()
+		 local selected = indices[mask:eq(1)]
+		 selected:apply(function(x) self.noise:select(2,x):fill(1) end)
+		 --self.noise[{{}, selected:totable(), {}, {}}]:fill(1)
          -- self.noise:bernoulli(1-self.p)
          if self.v2 then
             self.noise:div(1-self.p)

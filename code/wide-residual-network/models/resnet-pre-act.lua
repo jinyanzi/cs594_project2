@@ -28,10 +28,13 @@ local Max = nn.SpatialMaxPooling
 local SBatchNorm = nn.SpatialBatchNormalization
 
 local function createModel(opt)
+	
+	assert(opt and opt.deepen_factor)
+
    local depth = opt.depth
    
    -- The new Residual Unit in [a]
-   local function bottleneck(nInputPlane, nOutputPlane, stride)
+   local function bottleneck(nInputPlane, nOutputPlane, deepen, stride)
       
       local nBottleneckPlane = nOutputPlane / 4
       if opt.resnet_nobottleneck then
@@ -40,20 +43,24 @@ local function createModel(opt)
       
       if nInputPlane == nOutputPlane then -- most Residual Units have this shape      
          local convs = nn.Sequential()
-         -- conv1x1
-         convs:add(SBatchNorm(nInputPlane))
-         convs:add(ReLU(true))
-         convs:add(Convolution(nInputPlane,nBottleneckPlane,1,1,stride,stride,0,0))
-       
-         -- conv3x3
-         convs:add(SBatchNorm(nBottleneckPlane))
-         convs:add(ReLU(true))
-         convs:add(Convolution(nBottleneckPlane,nBottleneckPlane,3,3,1,1,1,1))
+
+		 for k = 2,deepen do
+		 print("-----",deepen)
+			-- conv1x1
+         	convs:add(SBatchNorm(nInputPlane))
+         	convs:add(ReLU(true))
+         	convs:add(Convolution(nInputPlane,nBottleneckPlane,1,1,stride,stride,0,0))
+      
+			-- conv3x3
+			convs:add(SBatchNorm(nBottleneckPlane))
+			convs:add(ReLU(true))
+			convs:add(Convolution(nBottleneckPlane,nBottleneckPlane,3,3,1,1,1,1))
         
-         -- conv1x1
-         convs:add(SBatchNorm(nBottleneckPlane))
-         convs:add(ReLU(true))
-         convs:add(Convolution(nBottleneckPlane,nOutputPlane,1,1,1,1,0,0))
+			-- conv1x1
+         	convs:add(SBatchNorm(nBottleneckPlane))
+         	convs:add(ReLU(true))
+         	convs:add(Convolution(nBottleneckPlane,nOutputPlane,1,1,1,1,0,0))
+		 end
         
          local shortcut = nn.Identity()
         
@@ -64,24 +71,28 @@ local function createModel(opt)
             :add(nn.CAddTable(true))
       else -- Residual Units for increasing dimensions
          local block = nn.Sequential()
+		print("++++",deepen, nInputPlane, nOutputPlane)
+
          -- common BN, ReLU
          block:add(SBatchNorm(nInputPlane))
          block:add(ReLU(true))
         
-         local convs = nn.Sequential()     
-         -- conv1x1
-         convs:add(Convolution(nInputPlane,nBottleneckPlane,1,1,stride,stride,0,0))
+         local convs = nn.Sequential()    
+		 for k = 2,deepen do
+			-- conv1x1
+			convs:add(Convolution(nInputPlane,nBottleneckPlane,1,1,stride,stride,0,0))
         
-         -- conv3x3
-         convs:add(SBatchNorm(nBottleneckPlane))
-         convs:add(ReLU(true))
-         convs:add(Convolution(nBottleneckPlane,nBottleneckPlane,3,3,1,1,1,1))
-        
-         -- conv1x1
-         convs:add(SBatchNorm(nBottleneckPlane))
-         convs:add(ReLU(true))
-         convs:add(Convolution(nBottleneckPlane,nOutputPlane,1,1,1,1,0,0))
-        
+         	-- conv3x3
+         	convs:add(SBatchNorm(nBottleneckPlane))
+         	convs:add(ReLU(true))
+         	convs:add(Convolution(nBottleneckPlane,nBottleneckPlane,3,3,1,1,1,1))
+
+			-- conv1x1
+         	convs:add(SBatchNorm(nBottleneckPlane))
+         	convs:add(ReLU(true))
+         	convs:add(Convolution(nBottleneckPlane,nOutputPlane,1,1,1,1,0,0))
+         end
+
          local shortcut = nn.Sequential()
          shortcut:add(Convolution(nInputPlane,nOutputPlane,1,1,stride,stride,0,0))
         
@@ -106,16 +117,17 @@ local function createModel(opt)
 
    local model = nn.Sequential()
    do
-      assert((depth - 2) % 9 == 0, 'depth should be 9n+2 (e.g., 164 or 1001 in the paper)')
-      local n = (depth - 2) / 9
+	  local k = opt.deepen_factor
+      assert((depth - 2) % (9*(k-1)) == 0, 'depth should be 9k+2 [k = deepen_factor-1](e.g., 164 or 1001 in the paper)')
+      local n = (depth - 2) / (9*(k-1))
 
       -- The new ResNet-164 and ResNet-1001 in [a]
       local nStages = {16, 64, 128, 256}
 
       model:add(Convolution(3,nStages[1],3,3,1,1,1,1)) -- one conv at the beginning (spatial size: 32x32)
-      model:add(layer(bottleneck, nStages[1], nStages[2], n, 1)) -- Stage 1 (spatial size: 32x32)
-      model:add(layer(bottleneck, nStages[2], nStages[3], n, 2)) -- Stage 2 (spatial size: 16x16)
-      model:add(layer(bottleneck, nStages[3], nStages[4], n, 2)) -- Stage 3 (spatial size: 8x8)
+      model:add(layer(bottleneck, nStages[1], nStages[2], n, k, 1)) -- Stage 1 (spatial size: 32x32)
+      model:add(layer(bottleneck, nStages[2], nStages[3], n, k, 2)) -- Stage 2 (spatial size: 16x16)
+      model:add(layer(bottleneck, nStages[3], nStages[4], n, k, 2)) -- Stage 3 (spatial size: 8x8)
       model:add(SBatchNorm(nStages[4]))
       model:add(ReLU(true))
       model:add(Avg(8, 8, 1, 1))

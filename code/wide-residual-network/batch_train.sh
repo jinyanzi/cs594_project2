@@ -40,6 +40,17 @@ for d in "${wrn_depth[@]}";do
 	for w in "${width[@]}";do
 		for k in "${dropout[@]}";do
 			echo $d $w $k
+			if [[ $d == 16 ]];then
+				if [[ $w == 1 ]];then
+					echo $"-->"$d $w
+					continue
+				fi
+
+				if [[ $w == 4 && `echo "$k == 0.1" | bc` == 1 ]];then
+					echo $"-->"$d $w $k
+					continue
+				fi
+			fi
 			model=wide-resnet widen_factor=$w depth=$d dropout=$k dataset=$data ./scripts/train_cifar.sh
 		done
 	done
