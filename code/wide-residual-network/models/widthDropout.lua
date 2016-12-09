@@ -23,7 +23,6 @@ function WidthDropout:updateOutput(input)
    if self.p > 0 then
       if self.train or self.stochastic_inference then
          self.noise:resizeAs(input)
-		 print(input:size())
 		 -- input is 4D tensor, second dimension is the feature map 
 		 local mask = torch.ByteTensor(1, input:size(2)):bernoulli(1-self.p)
 		 local indices = torch.linspace(1,mask:size(2),mask:size(2)):long()
