@@ -3,9 +3,9 @@ require 'cudnn'
 require 'cunn'
 local nninit = require 'nninit'
 
-local DepthDrop, parent = torch.class('nn.DepthDrop', 'nn.Container')
+local DepthDropout, parent = torch.class('nn.DepthDropout', 'nn.Container')
 
-function DepthDrop:__init(deathRate, nChannels, nOutChannels, stride)
+function DepthDropout:__init(deathRate, nChannels, nOutChannels, stride)
     parent.__init(self)
     self.gradInput = torch.Tensor()
     self.gate = true
@@ -41,7 +41,7 @@ function DepthDrop:__init(deathRate, nChannels, nOutChannels, stride)
     self.modules = {self.net, self.skip}
 end
 
-function DepthDrop:updateOutput(input)
+function DepthDropout:updateOutput(input)
     local skip_forward = self.skip:forward(input)
     self.output:resizeAs(skip_forward):copy(skip_forward)
     if self.train then
@@ -54,7 +54,7 @@ function DepthDrop:updateOutput(input)
     return self.output
 end
 
-function DepthDrop:updateGradInput(input, gradOutput)
+function DepthDropout:updateGradInput(input, gradOutput)
    self.gradInput = self.gradInput or input.new()
    self.gradInput:resizeAs(input):copy(self.skip:updateGradInput(input, gradOutput))
    if self.gate then
@@ -63,7 +63,7 @@ function DepthDrop:updateGradInput(input, gradOutput)
    return self.gradInput
 end
 
-function DepthDrop:accGradParameters(input, gradOutput, scale)
+function DepthDropout:accGradParameters(input, gradOutput, scale)
    scale = scale or 1
    if self.gate then
       self.net:accGradParameters(input, gradOutput, scale)
@@ -71,8 +71,8 @@ function DepthDrop:accGradParameters(input, gradOutput, scale)
 end
 
 ---- Adds a residual block to the passed in model ----
-function addDepthDrop(model, deathRate, nChannels, nOutChannels, stride)
-   model:add(nn.DepthDrop(deathRate, nChannels, nOutChannels, stride))
+function addDepthDropout(model, deathRate, nChannels, nOutChannels, stride)
+   model:add(nn.DepthDropout(deathRate, nChannels, nOutChannels, stride))
    model:add(cudnn.ReLU(true))
    return model
 end
