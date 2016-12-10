@@ -12,7 +12,12 @@ function ResidualBlock:__init(nInputPlane, nOutputPlane, stride, p)
 	Parent.__init(self)
 	self.p = p or 0
 	self.train = true
-	self.gate = true
+	if torch.ByteTensor(1,1):bernoulli(1-p) > 0 then
+		self.gate = true
+	else
+		self.gate = false
+	end
+	print(p, gate)
 	-- The new Residual Unit in [a]
 	local nBottleneckPlane = nOutputPlane / 4
 	-- if opt.resnet_nobottleneck then
