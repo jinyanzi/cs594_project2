@@ -12,11 +12,13 @@ data='./datasets/cifar10_whitened.t7'
 #done
 
 # resnet with different depth plus stochastic dropout
-#res_depth=(11 47 164 227)
-#for d in "${res_depth[@]}";do
-#	echo $d
-#	model=resnet-pre-act depth=$d stoDrop=0.3 dataset=$data ./scripts/train_cifar.sh
-#done
+res_depth=(11 47 164 227)
+for d in "${res_depth[@]}";do
+	for k in "${dropout[@]}";do
+		echo $d $k
+		model=resnet-pre-act depth=$d stoDrop=$k nGPU=4 dataset=$data ./scripts/train_cifar.sh
+	done
+done
 
 # wide residual network with different widening factor
 #wrn_depth=(16 22 28 50)
