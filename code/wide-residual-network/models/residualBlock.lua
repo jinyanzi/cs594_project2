@@ -40,19 +40,20 @@ function ResidualBlock:__init(nInputPlane, nOutputPlane, stride, p)
 		self.skip = nn.Identity()
 		self.skip:add(nn.Identity())
 
-		self.modules = nn.Sequential()
-		   :add(nn.ConcatTable()
-		   :add(self.net)
-		   :add(self.skip))
-		   :add(nn.CAddTable(true))
+		--self.modules = nn.Sequential()
+		--   :add(nn.ConcatTable()
+		--   :add(self.net)
+		--   :add(self.skip))
+		--   :add(nn.CAddTable(true))
+		self.modules = {self.net, self.skip}
+
 	else -- Residual Units for increasing dimensions
-		self.modules = nn.Sequential()
+		self.net= nn.Sequential()
 		
 		-- common BN, ReLU
-		self.modules:add(SBatchNorm(nInputPlane))
-		self.modules:add(ReLU(true))
+		self.net:add(SBatchNorm(nInputPlane))
+		self.net:add(ReLU(true))
 		
-		self.net = nn.Sequential()    
 		-- conv1x1
 		self.net:add(Convolution(nInputPlane,nBottleneckPlane,1,1,stride,stride,0,0))
 		
@@ -69,11 +70,12 @@ function ResidualBlock:__init(nInputPlane, nOutputPlane, stride, p)
 		self.skip = nn.Sequential()
 		self.skip:add(Convolution(nInputPlane,nOutputPlane,1,1,stride,stride,0,0))
 		
-		self.modules
-		   :add(nn.ConcatTable()
-		   :add(self.net)
-		   :add(self.skip))
-		   :add(nn.CAddTable(true))
+		--self.modules = nn.Sequential()
+		--   :add(nn.ConcatTable()
+		--   :add(self.net)
+		--   :add(self.skip))
+		--   :add(nn.CAddTable(true))
+		self.modules = {self.net, self.skip}
 	end
 end
 
