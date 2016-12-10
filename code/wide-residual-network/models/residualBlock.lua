@@ -42,8 +42,8 @@ function ResidualBlock:__init(p, nInputPlane, nOutputPlane, stride)
 
 		self.modules = nn.Sequential()
 		   :add(nn.ConcatTable()
-		   :add(convs)
-		   :add(shortcut))
+		   :add(self.net)
+		   :add(self.skip))
 		   :add(nn.CAddTable(true))
 	else -- Residual Units for increasing dimensions
 		self.modules = nn.Sequential()
@@ -71,8 +71,8 @@ function ResidualBlock:__init(p, nInputPlane, nOutputPlane, stride)
 		
 		self.modules
 		   :add(nn.ConcatTable()
-		   :add(convs)
-		   :add(shortcut))
+		   :add(self.net)
+		   :add(self.skip))
 		   :add(nn.CAddTable(true))
 	end
 end
