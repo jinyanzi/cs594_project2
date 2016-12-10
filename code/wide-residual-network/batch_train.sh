@@ -57,14 +57,11 @@ for d in "${wrn_depth[@]}";do
 done
 
 # wide residual network with different widening factor with stochastic dropout
-#wrn_depth=(16 22 28 50)
-#width=(1 2 4 8 10 12)
-#for d in "${wrn_depth[@]}";do
-#	for w in "${width[@]}";do
-#		for k in "${dropout[@]}";do
-#		echo $d $w $k
-#		model=wide-resnet widen_factor=$w depth=$d stoDrop=$k dataset=$data ./scripts/train_cifar.sh
-#	done
+#width=(1 4 8 10)
+#for w in "${width[@]}";do
+#	for k in "${dropout[@]}";do
+#	echo $d $w $k
+#	model=wide-resnet widen_factor=$w depth=16 stoDrop=$k dataset=$data ./scripts/train_cifar.sh
 #done
 
 # compare speedup of number GPU
