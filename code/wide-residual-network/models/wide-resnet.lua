@@ -43,7 +43,7 @@ local function createModel(opt)
 
    local blocks = {}
    
-   local function wide_basic(nInputPlane, nOutputPlane, stride)
+   local function wide_basic(nInputPlane, nOutputPlane, deepen, stride)
       local conv_params = {
          {3,3,stride,stride,1,1},
          {3,3,1,1,1,1},
@@ -59,15 +59,17 @@ local function createModel(opt)
             module:add(SBatchNorm(nInputPlane)):add(ReLU(true))
             convs:add(Convolution(nInputPlane,nBottleneckPlane,table.unpack(v)))
          else
-            convs:add(SBatchNorm(nBottleneckPlane)):add(ReLU(true))
-            if opt.dropout > 0 then
-               convs:add(Dropout())
-            end
-			-- stochastic width dropout
-			if opt.stoDrop > 0 then
-				convs:add(WidthDrop())
+			for j = 1, deepen-1 do
+				convs:add(SBatchNorm(nBottleneckPlane)):add(ReLU(true))
+            	if opt.dropout > 0 then
+            	   convs:add(Dropout())
+            	end
+				-- stochastic width dropout
+				if opt.stoDrop > 0 then
+					convs:add(WidthDrop())
+				end
+            	convs:add(Convolution(nBottleneckPlane,nBottleneckPlane,table.unpack(v)))
 			end
-            convs:add(Convolution(nBottleneckPlane,nBottleneckPlane,table.unpack(v)))
          end
       end
      
@@ -83,28 +85,29 @@ local function createModel(opt)
    end
 
    -- Stacking Residual Units on the same stage
-   local function layer(block, nInputPlane, nOutputPlane, count, stride)
+   local function layer(block, nInputPlane, nOutputPlane, count, deepen, stride)
       local s = nn.Sequential()
 
-      s:add(block(nInputPlane, nOutputPlane, stride))
+      s:add(block(nInputPlane, nOutputPlane, deepen, stride))
       for i=2,count do
-         s:add(block(nOutputPlane, nOutputPlane, 1))
+         s:add(block(nOutputPlane, nOutputPlane, deepen, 1))
       end
       return s
    end
 
    local model = nn.Sequential()
    do
-      assert((depth - 4) % 6 == 0, 'depth should be 6n+4')
-      local n = (depth - 4) / 6
+	  local l = opt.deepen_factor
+      assert((depth - 4) % (3*l) == 0, 'depth should be 3*l+4, where l is the deepen factor')
+      local n = (depth - 4) / (3*l)
 
       local k = opt.widen_factor
       local nStages = torch.Tensor{16, 16*k, 32*k, 64*k}
 
       model:add(Convolution(3,nStages[1],3,3,1,1,1,1)) -- one conv at the beginning (spatial size: 32x32)
-      model:add(layer(wide_basic, nStages[1], nStages[2], n, 1)) -- Stage 1 (spatial size: 32x32)
-      model:add(layer(wide_basic, nStages[2], nStages[3], n, 2)) -- Stage 2 (spatial size: 16x16)
-      model:add(layer(wide_basic, nStages[3], nStages[4], n, 2)) -- Stage 3 (spatial size: 8x8)
+      model:add(layer(wide_basic, nStages[1], nStages[2], n, l, 1)) -- Stage 1 (spatial size: 32x32)
+      model:add(layer(wide_basic, nStages[2], nStages[3], n, l, 2)) -- Stage 2 (spatial size: 16x16)
+      model:add(layer(wide_basic, nStages[3], nStages[4], n, l, 2)) -- Stage 3 (spatial size: 8x8)
       model:add(SBatchNorm(nStages[4]))
       model:add(ReLU(true))
       model:add(Avg(8, 8, 1, 1))
