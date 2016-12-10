@@ -15,6 +15,7 @@ data='./datasets/cifar10_whitened.t7'
 width=(1 4 8 10)
 for w in "${width[@]}";do
 	for k in "${dropout[@]}";do
-	echo $d $w $k
-	model=wide-resnet widen_factor=$w depth=16 stoDrop=$k dataset=$data ./scripts/train_cifar.sh
+		echo $w $k
+		model=wide-resnet widen_factor=$w depth=16 stoDrop=$k dataset=$data ./scripts/train_cifar.sh
+	done
 done
