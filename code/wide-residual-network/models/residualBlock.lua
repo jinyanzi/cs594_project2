@@ -2,7 +2,9 @@ require 'nn'
 -- require 'cudnn'
 -- require 'cunn'
 -- local nninit = require 'nninit'
-
+local Convolution = nn.SpatialConvolution
+local SBatchNorm = nn.SpatialBatchNormalization
+local ReLU = nn.ReLU
 local ResidualBlock, Parent = torch.class('nn.ResidualBlock', 'nn.Container')
 
 function ResidualBlock:__init(p, nInputPlane, nOutputPlane, stride)
@@ -13,9 +15,9 @@ function ResidualBlock:__init(p, nInputPlane, nOutputPlane, stride)
 	self.gate = true
 	-- The new Residual Unit in [a]
 	local nBottleneckPlane = nOutputPlane / 4
-	if opt.resnet_nobottleneck then
-	   nBottleneckPlane = nOutputPlane
-	end
+	-- if opt.resnet_nobottleneck then
+	--   nBottleneckPlane = nOutputPlane
+	-- end
 	
 	if nInputPlane == nOutputPlane then -- most Residual Units have this shape      
 		self.net = nn.Sequential()
