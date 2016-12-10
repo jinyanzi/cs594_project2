@@ -20,6 +20,7 @@
 
 local nn = require 'nn'
 local utils = paths.dofile'utils.lua'
+local residual = paths.dofile'residualBlock.lua'
 
 local Convolution = nn.SpatialConvolution
 local Avg = nn.SpatialAveragePooling
@@ -31,70 +32,6 @@ local function createModel(opt)
 	
    local depth = opt.depth
    
-   -- The new Residual Unit in [a]
-   local function bottleneck(nInputPlane, nOutputPlane, stride)
-      
-      local nBottleneckPlane = nOutputPlane / 4
-      if opt.resnet_nobottleneck then
-         nBottleneckPlane = nOutputPlane
-      end
-      
-      if nInputPlane == nOutputPlane then -- most Residual Units have this shape      
-         local convs = nn.Sequential()
-
-		  -- conv1x1
-         convs:add(SBatchNorm(nInputPlane))
-         convs:add(ReLU(true))
-         convs:add(Convolution(nInputPlane,nBottleneckPlane,1,1,stride,stride,0,0))
-      
-		 -- conv3x3
-		 convs:add(SBatchNorm(nBottleneckPlane))
-		 convs:add(ReLU(true))
-		 convs:add(Convolution(nBottleneckPlane,nBottleneckPlane,3,3,1,1,1,1))
-         
-		 -- conv1x1
-         convs:add(SBatchNorm(nBottleneckPlane))
-         convs:add(ReLU(true))
-         convs:add(Convolution(nBottleneckPlane,nOutputPlane,1,1,1,1,0,0))
-        
-         local shortcut = nn.Identity()
-        
-         return nn.Sequential()
-            :add(nn.ConcatTable()
-            :add(convs)
-            :add(shortcut))
-            :add(nn.CAddTable(true))
-      else -- Residual Units for increasing dimensions
-         local block = nn.Sequential()
-
-         -- common BN, ReLU
-         block:add(SBatchNorm(nInputPlane))
-         block:add(ReLU(true))
-
-		 local convs = nn.Sequential()    
-		 -- conv1x1
-		 convs:add(Convolution(nInputPlane,nBottleneckPlane,1,1,stride,stride,0,0))
-         
-         -- conv3x3
-         convs:add(SBatchNorm(nBottleneckPlane))
-         convs:add(ReLU(true))
-         convs:add(Convolution(nBottleneckPlane,nBottleneckPlane,3,3,1,1,1,1))
-
-		 -- conv1x1
-         convs:add(SBatchNorm(nBottleneckPlane))
-         convs:add(ReLU(true))
-         convs:add(Convolution(nBottleneckPlane,nOutputPlane,1,1,1,1,0,0))
-
-		 local shortcut = nn.Sequential()
-         shortcut:add(Convolution(nInputPlane,nOutputPlane,1,1,stride,stride,0,0))
-         return block
-            :add(nn.ConcatTable()
-               :add(convs)
-               :add(shortcut))
-            :add(nn.CAddTable(true))
-      end
-   end
-
    -- Stacking Residual Units on the same stage
    local function layer(block, nInputPlane, nOutputPlane, count, stride)
       local s = nn.Sequential()
@@ -115,9 +52,9 @@ local function createModel(opt)
       local nStages = {16, 64, 128, 256}
 
       model:add(Convolution(3,nStages[1],3,3,1,1,1,1)) -- one conv at the beginning (spatial size: 32x32)
-      model:add(layer(bottleneck, nStages[1], nStages[2], n, 1)) -- Stage 1 (spatial size: 32x32)
-      model:add(layer(bottleneck, nStages[2], nStages[3], n, 2)) -- Stage 2 (spatial size: 16x16)
-      model:add(layer(bottleneck, nStages[3], nStages[4], n, 2)) -- Stage 3 (spatial size: 8x8)
+      model:add(layer(nn.ResidualBlock, nStages[1], nStages[2], n, 1)) -- Stage 1 (spatial size: 32x32)
+      model:add(layer(nn.ResidualBlock, nStages[2], nStages[3], n, 2)) -- Stage 2 (spatial size: 16x16)
+      model:add(layer(nn.ResidualBlock, nStages[3], nStages[4], n, 2)) -- Stage 3 (spatial size: 8x8)
       model:add(SBatchNorm(nStages[4]))
       model:add(ReLU(true))
       model:add(Avg(8, 8, 1, 1))
