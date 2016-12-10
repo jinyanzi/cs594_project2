@@ -7,7 +7,7 @@ local SBatchNorm = nn.SpatialBatchNormalization
 local ReLU = nn.ReLU
 local ResidualBlock, Parent = torch.class('nn.ResidualBlock', 'nn.Container')
 
-function ResidualBlock:__init(p, nInputPlane, nOutputPlane, stride)
+function ResidualBlock:__init(nInputPlane, nOutputPlane, stride, p)
 
 	Parent.__init(self)
 	self.p = p or 0

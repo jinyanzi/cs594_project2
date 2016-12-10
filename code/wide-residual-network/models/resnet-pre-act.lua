@@ -33,12 +33,12 @@ local function createModel(opt)
    local depth = opt.depth
    
    -- Stacking Residual Units on the same stage
-   local function layer(block, nInputPlane, nOutputPlane, count, stride)
+   local function layer(block, nInputPlane, nOutputPlane, count, stride, p)
       local s = nn.Sequential()
 
-      s:add(block(nInputPlane, nOutputPlane, stride))
+      s:add(block(nInputPlane, nOutputPlane, stride, p))
       for i=2,count do
-         s:add(block(nOutputPlane, nOutputPlane, 1))
+         s:add(block(nOutputPlane, nOutputPlane, 1, p))
       end
       return s
    end
@@ -52,9 +52,9 @@ local function createModel(opt)
       local nStages = {16, 64, 128, 256}
 
       model:add(Convolution(3,nStages[1],3,3,1,1,1,1)) -- one conv at the beginning (spatial size: 32x32)
-      model:add(layer(nn.ResidualBlock, nStages[1], nStages[2], n, 1)) -- Stage 1 (spatial size: 32x32)
-      model:add(layer(nn.ResidualBlock, nStages[2], nStages[3], n, 2)) -- Stage 2 (spatial size: 16x16)
-      model:add(layer(nn.ResidualBlock, nStages[3], nStages[4], n, 2)) -- Stage 3 (spatial size: 8x8)
+      model:add(layer(nn.ResidualBlock, nStages[1], nStages[2], n, 1, opt.stoDrop)) -- Stage 1 (spatial size: 32x32)
+      model:add(layer(nn.ResidualBlock, nStages[2], nStages[3], n, 2, opt.stoDrop)) -- Stage 2 (spatial size: 16x16)
+      model:add(layer(nn.ResidualBlock, nStages[3], nStages[4], n, 2, opt.stoDrop)) -- Stage 3 (spatial size: 8x8)
       model:add(SBatchNorm(nStages[4]))
       model:add(ReLU(true))
       model:add(Avg(8, 8, 1, 1))
