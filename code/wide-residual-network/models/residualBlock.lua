@@ -42,7 +42,7 @@ function ResidualBlock:__init(nInputPlane, nOutputPlane, stride, p)
 		self.net:add(ReLU(true))
 		self.net:add(Convolution(nBottleneckPlane,nOutputPlane,1,1,1,1,0,0))
 		
-		self.skip = nn.Identity()
+		self.skip = nn.Sequential()
 		self.skip:add(nn.Identity())
 
 		--self.modules = nn.Sequential()

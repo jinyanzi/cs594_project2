@@ -16,7 +16,7 @@ res_depth=(11 47 164 227)
 for d in "${res_depth[@]}";do
 	for k in "${dropout[@]}";do
 		echo $d $k
-		model=resnet-pre-act depth=$d stoDrop=$k nGPU=4 dataset=$data ./scripts/train_cifar.sh
+		model=resnet-pre-act depth=$d stoDrop=$k dataset=$data ./scripts/train_cifar.sh
 	done
 done
 
@@ -36,23 +36,12 @@ done
 #done
 
 # wide residual network with different widening factor with regular dropout
-wrn_depth=(16 22 40)
-width=(1 4 8 10)
+wrn_depth=(22 40)
+width=(1 4 8)
 for d in "${wrn_depth[@]}";do
 	for w in "${width[@]}";do
 		for k in "${dropout[@]}";do
 			echo $d $w $k
-			if [[ $d == 16 ]];then
-				if [[ $w == 1 ]];then
-					echo $"-->"$d $w
-					continue
-				fi
-
-				if [[ $w == 4 && `echo "$k == 0.1" | bc` == 1 ]];then
-					echo $"-->"$d $w $k
-					continue
-				fi
-			fi
 			model=wide-resnet widen_factor=$w depth=$d dropout=$k dataset=$data ./scripts/train_cifar.sh
 		done
 	done
