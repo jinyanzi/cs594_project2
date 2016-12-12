@@ -28,6 +28,7 @@ function WidthDropout:updateOutput(input)
 		 local indices = torch.linspace(1,mask:size(2),mask:size(2)):long()
 		 local selected = indices[mask:eq(1)]
 		 selected:apply(function(x) self.noise:select(2,x):fill(1) end)
+		 -- print(self.noise:size())
 		 --self.noise[{{}, selected:totable(), {}, {}}]:fill(1)
          -- self.noise:bernoulli(1-self.p)
          if self.v2 then

@@ -146,7 +146,7 @@ local function getIterator(mode)
    }
 end
 
-local function log(t) print('json_stats: '..json.encode(tablex.merge(t,opt,true))) end
+local function log(t) print(tablex.merge(t,opt,true)) print('json_stats: '..json.encode(tablex.merge(t,opt,true))) end
 
 print('Will save at '..opt.save)
 paths.mkdir(opt.save)
