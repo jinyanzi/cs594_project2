@@ -98,7 +98,7 @@ local function createModel(opt)
    local model = nn.Sequential()
    do
 	  local l = opt.deepen_factor
-      assert((depth - 4) % (3*l) == 0, 'depth should be 3*l+4, where l is the deepen factor')
+      assert((depth - 4) % (3*l) == 0, 'depth should be 3*l*n+4, where l is the deepen factor')
       local n = (depth - 4) / (3*l)
 
       local k = opt.widen_factor

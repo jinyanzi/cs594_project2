@@ -33,7 +33,7 @@ def generateLegendName(log_name):
 def generateLegendNames(log_names):
     return [generateLegendName(log) for log in log_names]
 
-def plotLogs(log_names, suffix = ''):
+def plotLogs(log_names, prefix = ''):
     # parse log files, extracting json entry with stats per epoch and creating pandas DataFrame
     frames = [pd.DataFrame(sweeper.loadLog('../logs/'+log+'/log.txt')) for log in log_names]
     colors = ['red','blue','green','black','purple','orange','yellow']
@@ -64,7 +64,7 @@ def plotLogs(log_names, suffix = ''):
 
     ax.legend(loc='upper right', shadow=False)
     #plt.show()
-    plt.savefig('error_' + suffix + '.pdf') 
+    plt.savefig(prefix + '_error.pdf') 
 
 
     p = plt.figure()
@@ -79,7 +79,7 @@ def plotLogs(log_names, suffix = ''):
     ax.legend(loc='upper right', shadow=False)
 
     #plt.show()
-    plt.savefig('loss_' + suffix + '.pdf') 
+    plt.savefig(prefix + '_loss.pdf') 
 
     train_time = [sum(frame['train_time'])/3600 for i,frame in enumerate(frames)]
     x = np.arange(len(train_time))
@@ -91,7 +91,7 @@ def plotLogs(log_names, suffix = ''):
     plt.xticks(x+0.5, legends)
 
     #plt.show()
-    plt.savefig('trainTime_' + suffix + '.pdf') 
+    plt.savefig(prefix + '_trainTime.pdf') 
 
     n_parameters = [frame['n_parameters'][0]/1000000.0 for i,frame in enumerate(frames)]
     x = np.arange(len(n_parameters))
@@ -103,37 +103,87 @@ def plotLogs(log_names, suffix = ''):
     plt.ylabel('#parameter (M)')
 
     #plt.show()
-    plt.savefig('nparameters_' + suffix + '.pdf') 
+    plt.savefig( prefix + '_nparameters.pdf') 
 
 
+#plotLogs([
+#    'wide-resnet_d40w1',
+#    'wide-resnet_d40w2',
+#    'wide-resnet_d40w4',
+#    'wide-resnet_d40w6',
+#    'wide-resnet_d40w8'
+#    ], 'wrn_d40')
+#
+#plotLogs([
+#    'wide-resnet_d16w1',
+#    'wide-resnet_d16w2',
+#    'wide-resnet_d16w4',
+#    'wide-resnet_d16w8',
+#    'wide-resnet_d16w10'
+#    ], 'wrn_d16')
+#
+#
+#plotLogs([
+#    'resnet-pre-act_d11',
+#    'resnet-pre-act_d47',
+#    'resnet-pre-act_d164',
+#    'resnet-pre-act_d227'
+#    ], 'resnet')
+#
+#plotLogs([
+#    'wide-resnet_d16w8',
+#    'resnet-pre-act_d227'
+#    ], 'dw-compare')
 
+#plotLogs([
+#    'wide-resnet_d16w1',
+#    'wide-resnet_d16w1drop0.1',
+#    'wide-resnet_d16w1drop0.2',
+#    'wide-resnet_d16w1drop0.3',
+#    'wide-resnet_d16w1drop0.4',
+#    'wide-resnet_d16w1drop0.5'
+#    ], 'dropout_d16w1')
+#
+#plotLogs([
+#    'wide-resnet_d16w4',
+#    'wide-resnet_d16w4drop0.1',
+#    'wide-resnet_d16w4drop0.2',
+#    'wide-resnet_d16w4drop0.3',
+#    'wide-resnet_d16w4drop0.4',
+#    'wide-resnet_d16w4drop0.5'
+#    ], 'dropout_d16w4')
+#
+#plotLogs([
+#    'wide-resnet_d16w8',
+#    'wide-resnet_d16w8drop0.1',
+#    'wide-resnet_d16w8drop0.2',
+#    'wide-resnet_d16w8drop0.3',
+#    'wide-resnet_d16w8drop0.4',
+#    'wide-resnet_d16w8drop0.5'
+#    ], 'dropout_d16w8')
+#
+#plotLogs([
+#    'wide-resnet_d22w1',
+#    'wide-resnet_d22w1drop0.1',
+#    'wide-resnet_d22w1drop0.2',
+#    'wide-resnet_d22w1drop0.3',
+#    'wide-resnet_d22w1drop0.4',
+#    'wide-resnet_d22w1drop0.5'
+#    ], 'dropout_d22w1')
+#
+#
+#plotLogs([
+#    'resnet-pre-act_d11',
+#    'resnet-pre-act_d11stoDrop0.1',
+#    'resnet-pre-act_d11stoDrop0.2',
+#    'resnet-pre-act_d11stoDrop0.3',
+#    'resnet-pre-act_d11stoDrop0.4',
+#    'resnet-pre-act_d11stoDrop0.5'
+#    ], 'stodropout_d11')
+#
 plotLogs([
-    'wide-resnet_d40w1',
-    'wide-resnet_d40w2',
-    'wide-resnet_d40w4',
-    'wide-resnet_d40w6',
-    'wide-resnet_d40w8'
-    ], 'width40')
-
-plotLogs([
-    'wide-resnet_d16w1',
-    'wide-resnet_d16w2',
-    'wide-resnet_d16w4',
-    'wide-resnet_d16w8',
-    'wide-resnet_d16w10'
-    ], 'width16')
-
-
-plotLogs([
-    'resnet-pre-act_d11',
-    'resnet-pre-act_d47',
-    'resnet-pre-act_d164',
-    'resnet-pre-act_d227'
-    ], 'depth')
-
-plotLogs([
-    'wide-resnet_d16w8',
-    'resnet-pre-act_d227'
-    ], 'dw-compare')
-
+    'wide-resnet_d52w10n3',
+    'wide-resnet_d52w10n4',
+    'resnet-pre-act_d1001n4'
+    ], 'nGPU')
 
